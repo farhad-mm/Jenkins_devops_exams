@@ -1,4 +1,7 @@
 env
 __pycache__
 .vscode
-.idea
+.ideakubectl
+minikube-linux-amd64
+*.tar.gz
+jenkins-kubeconfig.yaml

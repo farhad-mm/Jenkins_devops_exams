@@ -5,13 +5,13 @@
 replicaCount: 3
 
 image:
-  repository: sajjadhz/fastapiapp
+  repository: farhadwais/cast-service
   pullPolicy: IfNotPresent
   # Overrides the image tag whose default is the chart appVersion.
   tag: "latest"
 
-imagePullSecrets: 
-  - name: "regcred"
+env:
+  DATABASE_URI: "postgresql://cast_db_username:cast_db_password@cast-db/cast_db_dev"
 nameOverride: ""
 fullnameOverride: ""
 
@@ -40,7 +40,7 @@ securityContext: {}
 service:
   type: NodePort
   port: 80
-  nodePort: 30007  
+  nodePort: 30081
   targetPort: 8000
 
 ingress:

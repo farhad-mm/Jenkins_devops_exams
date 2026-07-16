@@ -33,17 +33,23 @@ spec:
             {{- toYaml .Values.securityContext | nindent 12 }}
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
+          command: ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000", "--loop", "asyncio"]
           ports:
             - name: http
               containerPort: 8000
               protocol: TCP
+          env:
+            {{- range $key, $value := .Values.env }}
+            - name: {{ $key }}
+              value: {{ $value | quote }}
+            {{- end }}
           livenessProbe:
             httpGet:
-              path: /api/v1/checkapi
+              path: /api/v1/movies/docs
               port: http
           readinessProbe:
             httpGet:
-              path: /api/v1/checkapi
+              path: /api/v1/movies/docs
               port: http
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
