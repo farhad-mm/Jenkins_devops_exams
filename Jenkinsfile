@@ -44,7 +44,8 @@ pipeline {
                 docker rm -f cast-test || true
                 docker run -d --name cast-test --network test-net \
                   -e DATABASE_URI=postgresql://cast_db_username:cast_db_password@cast-test-db/cast_db_dev \
-                  $DOCKER_ID/cast-service:$DOCKER_TAG
+                  $DOCKER_ID/cast-service:$DOCKER_TAG \
+                  uvicorn app.main:app --host 0.0.0.0 --port 8000 --loop asyncio
                 sleep 8
                 echo "----- cast-test-db logs -----"
                 docker logs cast-test-db
@@ -69,7 +70,8 @@ pipeline {
                 docker run -d --name movie-test --network test-net \
                   -e DATABASE_URI=postgresql://movie_db_username:movie_db_password@movie-test-db/movie_db_dev \
                   -e CAST_SERVICE_HOST_URL=http://cast-test/api/v1/casts/ \
-                  $DOCKER_ID/movie-service:$DOCKER_TAG
+                  $DOCKER_ID/movie-service:$DOCKER_TAG \
+                  uvicorn app.main:app --host 0.0.0.0 --port 8000 --loop asyncio
                 sleep 8
                 echo "----- movie-test-db logs -----"
                 docker logs movie-test-db
