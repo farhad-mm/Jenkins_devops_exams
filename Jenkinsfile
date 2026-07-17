@@ -42,6 +42,12 @@ pipeline {
                   -e DATABASE_URI=postgresql://cast_db_username:cast_db_password@cast-test-db/cast_db_dev \
                   $DOCKER_ID/cast-service:$DOCKER_TAG
                 sleep 8
+                echo "----- cast-test-db logs -----"
+                docker logs cast-test-db
+                echo "----- cast-test logs -----"
+                docker logs cast-test
+                echo "----- cast-test status -----"
+                docker inspect cast-test --format '{{.State.Status}} exitcode={{.State.ExitCode}}'
                 docker exec cast-test python -c "import urllib.request; assert urllib.request.urlopen('http://localhost:8000/api/v1/casts/docs').status == 200; print('cast-service OK')"
 
                 docker rm -f cast-test cast-test-db
@@ -61,6 +67,12 @@ pipeline {
                   -e CAST_SERVICE_HOST_URL=http://cast-test/api/v1/casts/ \
                   $DOCKER_ID/movie-service:$DOCKER_TAG
                 sleep 8
+                echo "----- movie-test-db logs -----"
+                docker logs movie-test-db
+                echo "----- movie-test logs -----"
+                docker logs movie-test
+                echo "----- movie-test status -----"
+                docker inspect movie-test --format '{{.State.Status}} exitcode={{.State.ExitCode}}'
                 docker exec movie-test python -c "import urllib.request; assert urllib.request.urlopen('http://localhost:8000/api/v1/movies/docs').status == 200; print('movie-service OK')"
 
                 docker rm -f movie-test movie-test-db
