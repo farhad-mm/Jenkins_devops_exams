@@ -103,8 +103,8 @@ pipeline {
             steps {
                 withCredentials([file(credentialsId: 'kubeconfig-credentials', variable: 'KUBECONFIG')]) {
                     sh '''
-                    helm upgrade --install cast-service ./cast-chart --namespace dev --set image.tag=$DOCKER_TAG
-                    helm upgrade --install movie-service ./movie-chart --namespace dev --set image.tag=$DOCKER_TAG
+                    helm upgrade --install cast-service ./cast-chart --namespace dev --set image.tag=$DOCKER_TAG --set service.nodePort=30081
+                    helm upgrade --install movie-service ./movie-chart --namespace dev --set image.tag=$DOCKER_TAG --set service.nodePort=30082
                     '''
                 }
             }
@@ -114,8 +114,8 @@ pipeline {
             steps {
                 withCredentials([file(credentialsId: 'kubeconfig-credentials', variable: 'KUBECONFIG')]) {
                     sh '''
-                    helm upgrade --install cast-service ./cast-chart --namespace qa --set image.tag=$DOCKER_TAG
-                    helm upgrade --install movie-service ./movie-chart --namespace qa --set image.tag=$DOCKER_TAG
+                    helm upgrade --install cast-service ./cast-chart --namespace qa --set image.tag=$DOCKER_TAG --set service.nodePort=30083
+                    helm upgrade --install movie-service ./movie-chart --namespace qa --set image.tag=$DOCKER_TAG --set service.nodePort=30084
                     '''
                 }
             }
@@ -125,8 +125,8 @@ pipeline {
             steps {
                 withCredentials([file(credentialsId: 'kubeconfig-credentials', variable: 'KUBECONFIG')]) {
                     sh '''
-                    helm upgrade --install cast-service ./cast-chart --namespace staging --set image.tag=$DOCKER_TAG
-                    helm upgrade --install movie-service ./movie-chart --namespace staging --set image.tag=$DOCKER_TAG
+                    helm upgrade --install cast-service ./cast-chart --namespace staging --set image.tag=$DOCKER_TAG --set service.nodePort=30085
+                    helm upgrade --install movie-service ./movie-chart --namespace staging --set image.tag=$DOCKER_TAG --set service.nodePort=30086
                     '''
                 }
             }
@@ -150,8 +150,8 @@ pipeline {
             steps {
                 withCredentials([file(credentialsId: 'kubeconfig-credentials', variable: 'KUBECONFIG')]) {
                     sh '''
-                    helm upgrade --install cast-service ./cast-chart --namespace prod --set image.tag=$DOCKER_TAG
-                    helm upgrade --install movie-service ./movie-chart --namespace prod --set image.tag=$DOCKER_TAG
+                    helm upgrade --install cast-service ./cast-chart --namespace prod --set image.tag=$DOCKER_TAG --set service.nodePort=30087
+                    helm upgrade --install movie-service ./movie-chart --namespace prod --set image.tag=$DOCKER_TAG --set service.nodePort=30088
                     '''
                 }
             }
