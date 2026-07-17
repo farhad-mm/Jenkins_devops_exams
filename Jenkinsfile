@@ -26,18 +26,45 @@ pipeline {
         stage('Test images') {
             steps {
                 sh '''
+                docker network rm test-net || true
+                docker network create test-net
+
+                docker rm -f cast-test-db || true
+                docker run -d --name cast-test-db --network test-net \
+                  -e POSTGRES_USER=cast_db_username \
+                  -e POSTGRES_PASSWORD=cast_db_password \
+                  -e POSTGRES_DB=cast_db_dev \
+                  postgres:12.1-alpine
+                sleep 10
+
                 docker rm -f cast-test || true
-                docker run -d --name cast-test -p 8100:8000 $DOCKER_ID/cast-service:$DOCKER_TAG
+                docker run -d --name cast-test --network test-net \
+                  -e DATABASE_URI=postgresql://cast_db_username:cast_db_password@cast-test-db/cast_db_dev \
+                  $DOCKER_ID/cast-service:$DOCKER_TAG
                 sleep 8
-                curl -f http://localhost:8100/api/v1/casts/docs
-                docker rm -f cast-test
+                docker exec cast-test python -c "import urllib.request; assert urllib.request.urlopen('http://localhost:8000/api/v1/casts/docs').status == 200; print('cast-service OK')"
+
+                docker rm -f cast-test cast-test-db
                 '''
                 sh '''
+                docker rm -f movie-test-db || true
+                docker run -d --name movie-test-db --network test-net \
+                  -e POSTGRES_USER=movie_db_username \
+                  -e POSTGRES_PASSWORD=movie_db_password \
+                  -e POSTGRES_DB=movie_db_dev \
+                  postgres:12.1-alpine
+                sleep 10
+
                 docker rm -f movie-test || true
-                docker run -d --name movie-test -p 8101:8000 $DOCKER_ID/movie-service:$DOCKER_TAG
+                docker run -d --name movie-test --network test-net \
+                  -e DATABASE_URI=postgresql://movie_db_username:movie_db_password@movie-test-db/movie_db_dev \
+                  -e CAST_SERVICE_HOST_URL=http://cast-test/api/v1/casts/ \
+                  $DOCKER_ID/movie-service:$DOCKER_TAG
                 sleep 8
-                curl -f http://localhost:8101/api/v1/movies/docs
-                docker rm -f movie-test
+                docker exec movie-test python -c "import urllib.request; assert urllib.request.urlopen('http://localhost:8000/api/v1/movies/docs').status == 200; print('movie-service OK')"
+
+                docker rm -f movie-test movie-test-db
+                docker network rm test-net
                 '''
             }
         }
@@ -115,7 +142,8 @@ pipeline {
 
     post {
         always {
-            sh 'docker rm -f cast-test movie-test || true'
+            sh 'docker rm -f cast-test movie-test cast-test-db movie-test-db || true'
+            sh 'docker network rm test-net || true'
         }
     }
 }
