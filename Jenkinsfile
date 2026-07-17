@@ -1,6 +1,10 @@
 pipeline {
     agent any
 
+    options {
+        disableConcurrentBuilds()
+    }
+
     environment {
         DOCKER_ID = "farhadwais"
         DOCKER_TAG = "v.${BUILD_NUMBER}.0"
